@@ -52,6 +52,8 @@ type tree = [string] | [string, tree, tree] | [string, tree, tree, tree] //3.7 a
 
 /* Parses a symbol Arr to an array of form head left right, except for tristate where its head cond left right */
 function treeSplitRecurr(symbolArr : string[]) : tree{
+    symbolArr = symbolArr.filter(c => !isNaN(c.charCodeAt(0))).map(c => c.trim())
+
     //tristate section, only ? : for now, prioritizesd
     let splitIndex = symbolArr.findIndex((a) => triStateSymbol_head.includes(a));
 
@@ -76,17 +78,21 @@ function treeSplitRecurr(symbolArr : string[]) : tree{
         }
     }
 
+    console.log("Debug: ", symbolArr)
+
     splitIndex = symbolArr.findIndex((a) => head_symbol.includes(a));
     if(splitIndex == -1) {
 
         if(symbolArr.length != 1)
-            throw new Error(`Consecutive symbols that are not head found : '${symbolArr.join(" ")}'`);
+            throw new Error(`Consecutive symbols that are not head found : ${symbolArr.length}, '${symbolArr.map(c => c.charCodeAt(0)).join(" ")}'`);
         if(triStateSymbol_tail.includes(symbolArr[0]) || pairedSymbol_tail.includes(symbolArr[0]))
             throw new Error("Tail with no head encountered");
         if(!isValidSymbol(symbolArr[0])) 
             throw new Error(`Invalid symbol found : '${symbolArr[0]}'`)
-        if(symbolArr[0][0] == "\"" && symbolArr[0][symbolArr[0].length - 1] == "\""){
-            symbolArr[0] = symbolArr[0].slice(1, -1).trimEnd()
+        if(symbolArr[0][0] === "\"" && symbolArr[0][symbolArr[0].length - 1] === "\""){
+            //allow " raw string "
+            const after = symbolArr[0].slice(1, -1)
+            symbolArr[0] = after
         }
         return symbolArr as [string] //length check is literally right above
     };
